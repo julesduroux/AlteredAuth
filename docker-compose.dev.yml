@@ -1,0 +1,24 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.0
+    container_name: keycloak-dev
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./build/themes:/opt/keycloak/themes:ro
+      - ./dev/realm-export.json:/opt/keycloak/data/import/players-realm.json:ro
+
+  frontend:
+    image: nginx:alpine
+    container_name: frontend-example-dev
+    depends_on:
+      - keycloak
+    ports:
+      - "8000:80"
+    volumes:
+      - ./frontend-example:/usr/share/nginx/html:ro
