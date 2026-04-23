@@ -6,14 +6,7 @@ const path = require("path");
 const INPUT = path.join(__dirname, "realm-export-raw.json");
 const OUTPUT = path.join(__dirname, "realm-export.json");
 
-const BUILTIN_CLIENTS = new Set([
-  "account",
-  "account-console",
-  "admin-cli",
-  "broker",
-  "realm-management",
-  "security-admin-console",
-]);
+const KEPT_CLIENTS = new Set(["localhost-test"]);
 
 const TEST_USERS = [
   {
@@ -52,17 +45,19 @@ function stripIds(node) {
 
 const raw = JSON.parse(fs.readFileSync(INPUT, "utf8"));
 
-// Drop built-in clients (Keycloak recreates them at import).
-raw.clients = (raw.clients || []).filter((c) => !BUILTIN_CLIENTS.has(c.clientId));
+// Keep only whitelisted clients (Keycloak recreates built-ins at import).
+raw.clients = (raw.clients || []).filter((c) => KEPT_CLIENTS.has(c.clientId));
 
 // Drop built-in auth flows & authenticator configs (also recreated).
 raw.authenticationFlows = (raw.authenticationFlows || []).filter((f) => !f.builtIn);
 if (raw.authenticationFlows.length === 0) delete raw.authenticationFlows;
 delete raw.authenticatorConfig;
 
-// Drop role definitions for builtin clients — they were tied to realm-management etc.
+// Keep only role definitions for whitelisted clients.
 if (raw.roles && raw.roles.client) {
-  for (const name of BUILTIN_CLIENTS) delete raw.roles.client[name];
+  for (const name of Object.keys(raw.roles.client)) {
+    if (!KEPT_CLIENTS.has(name)) delete raw.roles.client[name];
+  }
 }
 
 // clientScopeMappings on this realm only bind builtin scopes/clients — drop it.

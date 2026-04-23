@@ -28,57 +28,30 @@
 
   <form action="${url.loginAction}" method="post">
 
-    <#if user.editUsernameAllowed>
-      <div class="form-group">
-        <label class="form-label" for="username">${msg("username")}</label>
-        <input
-          class="form-control"
-          type="text"
-          id="username"
-          name="username"
-          value="${(user.username!'')}"
-          autocomplete="username"
-        >
-      </div>
+    <#-- Fully driven by the declarative user profile: Keycloak only exposes attributes
+         the current user is allowed to view/edit, so disabled fields never render. -->
+    <#if profile?? && profile.attributes??>
+      <#list profile.attributes as attribute>
+        <#assign inputType = (attribute.name == "email")?then("email", "text")>
+        <div class="form-group">
+          <label class="form-label" for="${attribute.name}">${advancedMsg(attribute.displayName!attribute.name)}</label>
+          <input
+            class="form-control"
+            type="${inputType}"
+            id="${attribute.name}"
+            name="${attribute.name}"
+            value="${(attribute.value!'')}"
+            <#if attribute.required??>required</#if>
+            <#if attribute.readOnly??>readonly</#if>
+            <#if attribute.autocomplete??>autocomplete="${attribute.autocomplete}"</#if>
+            aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
+          >
+          <#if messagesPerField.existsError('${attribute.name}')>
+            <span class="form-error">${kcSanitize(messagesPerField.get('${attribute.name}'))?no_esc}</span>
+          </#if>
+        </div>
+      </#list>
     </#if>
-
-    <div class="form-group">
-      <label class="form-label" for="email">${msg("email")}</label>
-      <input
-        class="form-control"
-        type="email"
-        id="email"
-        name="email"
-        value="${(user.email!'')}"
-        autocomplete="email"
-      >
-    </div>
-
-    <div class="form-row">
-      <div class="form-group form-group-half">
-        <label class="form-label" for="firstName">${msg("firstName")}</label>
-        <input
-          class="form-control"
-          type="text"
-          id="firstName"
-          name="firstName"
-          value="${(user.firstName!'')}"
-          autocomplete="given-name"
-        >
-      </div>
-
-      <div class="form-group form-group-half">
-        <label class="form-label" for="lastName">${msg("lastName")}</label>
-        <input
-          class="form-control"
-          type="text"
-          id="lastName"
-          name="lastName"
-          value="${(user.lastName!'')}"
-          autocomplete="family-name"
-        >
-      </div>
-    </div>
 
     <div class="form-actions">
       <#if isAppInitiatedAction??>

@@ -55,6 +55,32 @@
       </div>
     </#if>
 
+    <#-- Custom user profile attributes: any declarative attribute not handled explicitly above -->
+    <#assign builtinAttrs = ["username", "email", "firstName", "lastName"]>
+    <#if profile?? && profile.attributes??>
+      <#list profile.attributes as attribute>
+        <#if !builtinAttrs?seq_contains(attribute.name)>
+          <div class="form-group">
+            <label class="form-label" for="${attribute.name}">${advancedMsg(attribute.displayName!attribute.name)}</label>
+            <input
+              class="form-control"
+              type="text"
+              id="${attribute.name}"
+              name="${attribute.name}"
+              value="${(register.formData[attribute.name]!attribute.value!'')}"
+              <#if attribute.required??>required</#if>
+              <#if attribute.readOnly??>readonly</#if>
+              <#if attribute.autocomplete??>autocomplete="${attribute.autocomplete}"</#if>
+              aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
+            >
+            <#if messagesPerField.existsError('${attribute.name}')>
+              <span class="form-error">${kcSanitize(messagesPerField.get('${attribute.name}'))?no_esc}</span>
+            </#if>
+          </div>
+        </#if>
+      </#list>
+    </#if>
+
     <#if passwordRequired??>
       <div class="form-group">
         <label class="form-label" for="password">${msg("password")}</label>
