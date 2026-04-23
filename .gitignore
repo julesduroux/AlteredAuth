@@ -1,1 +1,8 @@
 ﻿dev/realm-export-raw.json
+
+# Production deploy lives in the private ops repo (julesduroux/AlteredAuth-ops).
+# These files may still exist locally for convenience but must never be committed here.
+docker-compose.yml
+deploy.sh
+.env
+traefik/
