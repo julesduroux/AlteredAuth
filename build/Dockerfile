@@ -1,3 +1,15 @@
+# unique-attribute-validator-provider
+FROM maven:3.8.1-openjdk-17-slim AS unique-attribute-validator-provider
+
+WORKDIR /app
+
+COPY unique-attribute-validator-provider/pom.xml .
+COPY unique-attribute-validator-provider/src ./src
+
+RUN mvn clean package && \
+    mkdir -p /result && \
+    cp /app/target/unique-attribute-validator-provider-1.0-SNAPSHOT.jar /result/unique-attribute-validator-provider.jar
+
 # Dockerfile
 ARG KEYCLOAK_VERSION=26.5.0
 
@@ -8,6 +20,9 @@ ENV KC_DB=postgres
 ENV KC_FEATURES=authorization,account,account-api,docker,web-authn,client-policies,ciba,par
 
 WORKDIR /opt/keycloak
+
+COPY --from=unique-attribute-validator-provider /result/unique-attribute-validator-provider.jar /opt/keycloak/providers
+
 RUN /opt/keycloak/bin/kc.sh build
 
 FROM quay.io/keycloak/keycloak:${KEYCLOAK_VERSION} AS final
