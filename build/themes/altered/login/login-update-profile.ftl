@@ -44,8 +44,8 @@
             id="${attribute.name}"
             name="${attribute.name}"
             value="${(attribute.value!'')}"
-            <#if attribute.required??>required</#if>
-            <#if attribute.readOnly??>readonly</#if>
+            <#if (attribute.required!false)>required</#if>
+            <#if (attribute.readOnly!false)>readonly</#if>
             <#if attribute.autocomplete??>autocomplete="${attribute.autocomplete}"</#if>
             aria-invalid="<#if messagesPerField.existsError('${attribute.name}')>true</#if>"
           >
