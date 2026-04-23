@@ -28,6 +28,11 @@
 
   <form action="${url.registrationAction}" method="post">
 
+    <#-- Persist the UI language the user registered in as their account locale. -->
+    <#if realm.internationalizationEnabled && locale??>
+      <input type="hidden" name="locale" value="${locale.currentLanguageTag}">
+    </#if>
+
     <div class="form-group">
       <label class="form-label" for="email">${msg("email")}</label>
       <input
