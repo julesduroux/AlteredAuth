@@ -55,8 +55,9 @@
       </div>
     </#if>
 
-    <#-- Custom user profile attributes: any declarative attribute not handled explicitly above -->
-    <#assign builtinAttrs = ["username", "email", "firstName", "lastName"]>
+    <#-- Custom user profile attributes: any declarative attribute not handled explicitly above.
+         "locale" is a system attribute — Keycloak manages it via the language switcher. -->
+    <#assign builtinAttrs = ["username", "email", "firstName", "lastName", "locale"]>
     <#if profile?? && profile.attributes??>
       <#list profile.attributes as attribute>
         <#if !builtinAttrs?seq_contains(attribute.name)>

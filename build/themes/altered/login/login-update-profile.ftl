@@ -29,9 +29,12 @@
   <form action="${url.loginAction}" method="post">
 
     <#-- Fully driven by the declarative user profile: Keycloak only exposes attributes
-         the current user is allowed to view/edit, so disabled fields never render. -->
+         the current user is allowed to view/edit, so disabled fields never render.
+         "locale" is a system attribute — Keycloak manages it via the language switcher. -->
+    <#assign systemAttrs = ["locale"]>
     <#if profile?? && profile.attributes??>
       <#list profile.attributes as attribute>
+        <#if systemAttrs?seq_contains(attribute.name)><#continue></#if>
         <#assign inputType = (attribute.name == "email")?then("email", "text")>
         <div class="form-group">
           <label class="form-label" for="${attribute.name}">${advancedMsg(attribute.displayName!attribute.name)}</label>
