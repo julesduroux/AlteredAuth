@@ -6,7 +6,17 @@ const path = require("path");
 const INPUT = path.join(__dirname, "realm-export-raw.json");
 const OUTPUT = path.join(__dirname, "realm-export.json");
 
-const KEPT_CLIENTS = new Set(["localhost-test"]);
+// Keycloak's built-in clients (kept so the account console etc. work out of the
+// box) plus the dev-only example client.
+const KEPT_CLIENTS = new Set([
+  "account",
+  "account-console",
+  "admin-cli",
+  "broker",
+  "realm-management",
+  "security-admin-console",
+  "localhost-test",
+]);
 
 const TEST_USERS = [
   {
@@ -45,23 +55,20 @@ function stripIds(node) {
 
 const raw = JSON.parse(fs.readFileSync(INPUT, "utf8"));
 
-// Keep only whitelisted clients (Keycloak recreates built-ins at import).
+// Drop prod application clients; keep built-ins + the dev example.
 raw.clients = (raw.clients || []).filter((c) => KEPT_CLIENTS.has(c.clientId));
 
-// Drop built-in auth flows & authenticator configs (also recreated).
+// Drop built-in auth flows & authenticator configs (Keycloak recreates them).
 raw.authenticationFlows = (raw.authenticationFlows || []).filter((f) => !f.builtIn);
 if (raw.authenticationFlows.length === 0) delete raw.authenticationFlows;
 delete raw.authenticatorConfig;
 
-// Keep only role definitions for whitelisted clients.
+// Drop role definitions for the prod clients we just stripped.
 if (raw.roles && raw.roles.client) {
   for (const name of Object.keys(raw.roles.client)) {
     if (!KEPT_CLIENTS.has(name)) delete raw.roles.client[name];
   }
 }
-
-// clientScopeMappings on this realm only bind builtin scopes/clients — drop it.
-delete raw.clientScopeMappings;
 
 // No SMTP in dev (no real mail server, no leaking prod provider).
 delete raw.smtpServer;

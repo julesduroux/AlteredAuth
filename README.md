@@ -103,10 +103,9 @@ policy tweak…), re-sync it so collaborators get an accurate local setup.
    This produces a sanitized `dev/realm-export.json` by:
    - stripping every `id` / `containerId` (Keycloak regenerates them on import)
    - removing `smtpServer` (no mail server in dev, avoids leaking the prod provider)
-   - removing the 6 Keycloak built-in clients (`account`, `account-console`,
-     `admin-cli`, `broker`, `realm-management`, `security-admin-console`) —
-     Keycloak recreates them automatically at import
-   - removing built-in auth flows, authenticator configs, and scope mappings
+   - removing every prod application client (anything other than the 6 Keycloak
+     built-ins and the dev-only `localhost-test`) along with its role definitions
+   - removing built-in auth flows and authenticator configs (Keycloak recreates them)
    - forcing `verifyEmail: false` so registration works without SMTP
    - injecting the two test users (`alice` / `bob`)
 
