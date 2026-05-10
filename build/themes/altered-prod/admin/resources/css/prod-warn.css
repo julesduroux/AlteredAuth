@@ -1,0 +1,30 @@
+/* Visually mark the production admin console so it can't be confused with
+   preprod / dev. Enabled by selecting the "altered-prod" admin theme on the
+   master realm of the prod server only. */
+
+body::before {
+  content: "PRODUCTION";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #c0392b;
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  padding: 4px 0;
+  pointer-events: none;
+}
+
+.pf-v5-c-page,
+.pf-v5-c-page__main {
+  padding-top: 24px;
+}
+
+.pf-v5-c-masthead,
+.pf-v5-c-page__header {
+  border-top: 4px solid #c0392b !important;
+}
